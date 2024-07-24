@@ -1,27 +1,60 @@
-name: Auto Merge Development to Main
+name: Python CI
 
 on:
-  push:
-    branches:
-      - development
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  merge-to-main:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          fetch-depth: 0 # Fetch all history for all tags and branches
-
-      - name: Configure Git
+          python-version: '3.8'
+      - name: Install dependencies
         run: |
-          git config --global user.email "jyothikrishnan.vilangara@gmail.com"
-          git config --global user.name "jyothikrishn"
-
-      - name: Merge development branch to main
+          python -m pip install --upgrade pip
+          pip install flake8
+      - name: Lint with flake8
         run: |
-          git fetch origin
-          git checkout main
-          git merge --no-ff origin/development -m "Merging changes from development to main"
-          git push origin main
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Test with pytest
+        run: |
+          python -m pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Deploy
+        run: |
+          echo "Add your deployment script here"

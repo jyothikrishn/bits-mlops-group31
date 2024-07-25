@@ -2,7 +2,7 @@ name: myenv
 channels:
   - defaults
 dependencies:
-  - python=3.9  # Upgraded Python version
+  - python=3.8
   - pip
   - openssl
   - libffi
@@ -47,9 +47,8 @@ dependencies:
     - six==1.16.0
     - tensorboard==2.13.0
     - tensorboard-data-server==0.7.2
-    - tensorflow==2.13.0  # Consider using standard tensorflow if tensorflow-intel is not available
+    - tensorflow==2.13.0
     - tensorflow-estimator==2.13.0
-    # Removed tensorflow-intel due to availability issues
     - tensorflow-io-gcs-filesystem==0.31.0
     - termcolor==2.4.0
     - tomli==2.0.1

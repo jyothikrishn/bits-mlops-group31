@@ -38,6 +38,7 @@ jobs:
           auto-activate-base: false
 
       - name: Install dependencies
+        shell: bash -l {0} 
         run: |
           conda activate myenv
           pip install -r requirements.txt

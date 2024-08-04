@@ -127,3 +127,5 @@ jobs:
       - name: Push Docker image to ECR
         run: |
           docker push 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest
+
+

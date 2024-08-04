@@ -4,6 +4,7 @@ import tensorflow as tf
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+mlflow.set_tracking_uri("http://host.docker.internal:8899")
 
 # Load the model from the MLflow Model Registry
 model_name = "MyModel"
@@ -17,5 +18,4 @@ def predict():
     return jsonify(predictions.tolist())
 
 if __name__ == "__main__":
-    mlflow.set_tracking_uri("http://host.docker.internal:5000")
     app.run(host='0.0.0.0', port=5001)

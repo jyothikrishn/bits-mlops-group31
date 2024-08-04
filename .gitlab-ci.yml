@@ -1,0 +1,56 @@
+stages:
+  - lint
+  - test
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V  # Print out python version for debugging
+  - python -m venv venv
+  - source venv/bin/activate
+  - pip install -r requirements.txt
+
+lint:
+  stage: lint
+  script:
+    - pip install flake8
+    - flake8 .
+
+test:
+  stage: test
+  script:
+    - pip install pytest
+    - pytest
+
+deploy:
+  stage: deploy
+  image: docker:19.03.12
+  services:
+    - docker:19.03.12-dind
+  before_script:
+    - apk add --no-cache curl python3 py3-pip
+    - pip3 install awscli
+    - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+  script:
+    - docker build -t $ECR_REPOSITORY_URL:$CI_COMMIT_SHA .
+    - docker push $ECR_REPOSITORY_URL:$CI_COMMIT_SHA
+    - >
+      aws ecs update-service --cluster <ECS_CLUSTER_NAME> --service <ECS_SERVICE_NAME>
+      --force-new-deployment --task-definition <TASK_DEFINITION_FAMILY>
+  only:
+    - main
+  variables:
+    AWS_ACCESS_KEY_ID: <AWS_ACCESS_KEY_ID>
+    AWS_SECRET_ACCESS_KEY: <AWS_SECRET_ACCESS_KEY>
+    AWS_DEFAULT_REGION: <AWS_DEFAULT_REGION>
+    ECR_REPOSITORY_URL: <ECR_REPOSITORY_URL>
+    ECS_SERVICE_NAME: <ECS_SERVICE_NAME>
+    ECS_CLUSTER_NAME: <ECS_CLUSTER_NAME>
+    TASK_DEFINITION_FAMILY: <TASK_DEFINITION_FAMILY>

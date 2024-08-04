@@ -60,43 +60,8 @@ jobs:
           python -m pytest
 
   build:
-      needs: test
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v1
-
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ap-south-1 
-
-        - name: Log in to ECR
-          run: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 055177035138.dkr.ecr.ap-south-1.amazonaws.com
-
-        - name: Build Docker image
-          run: |
-            docker build -t inferencer .
-
-        - name: Tag Docker image
-          run: |
-            docker tag inferencer:latest 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest
-
-        - name: Save Docker image for deploy step
-          uses: actions/upload-artifact@v2
-          with:
-            name: inferencer
-            path: docker save inferencer | gzip > docker-image.tar.gz
-
-  deploy:
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
-    #if: github.event_name == 'push' #&& github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
 
@@ -114,7 +79,46 @@ jobs:
         run: |
           aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 055177035138.dkr.ecr.ap-south-1.amazonaws.com
 
-      - name: Download Docker image from build step
+      - name: Build Docker image
+        run: |
+          docker build -t inferencer .
+
+      - name: Tag Docker image
+        run: |
+          docker tag inferencer:latest 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest
+
+      - name: Save Docker image for deploy step
+        run: |
+          docker save inferencer | gzip > docker-image.tar.gz
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: inferencer
+          path: docker-image.tar.gz
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1 
+
+      - name: Log in to ECR
+        run: |
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 055177035138.dkr.ecr.ap-south-1.amazonaws.com
+
+      - name: Download Docker image artifact
         uses: actions/download-artifact@v2
         with:
           name: inferencer

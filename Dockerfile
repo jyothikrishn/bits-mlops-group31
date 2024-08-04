@@ -22,7 +22,7 @@ RUN /opt/conda/bin/conda env create -n inferencing-env -f environment.yml
 RUN /opt/conda/bin/conda run -n inferencing-env pip install mlflow tensorflow flask
 
 # Set the MLflow tracking URI as an environment variable
-ENV MLFLOW_TRACKING_URI="http://127.0.0.1:5000"
+ENV MLFLOW_TRACKING_URI="http://127.0.0.1:8899"
 
 # Make port 5001 available to the world outside this container
 EXPOSE 5001

@@ -73,25 +73,25 @@ jobs:
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ap-south-1  # Replace with your actual AWS region
+            aws-region: ap-south-1 
 
         - name: Log in to ECR
           run: |
-            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+            aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 055177035138.dkr.ecr.ap-south-1.amazonaws.com
 
         - name: Build Docker image
           run: |
-            docker build -t your-image-name .
+            docker build -t inferencer .
 
         - name: Tag Docker image
           run: |
-            docker tag your-image-name:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/your-ecr-repo:latest
+            docker tag inferencer:latest 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest
 
         - name: Save Docker image for deploy step
           uses: actions/upload-artifact@v2
           with:
-            name: docker-image
-            path: docker save your-image-name | gzip > docker-image.tar.gz
+            name: inferencer
+            path: docker save inferencer | gzip > docker-image.tar.gz
 
   deploy:
     needs: build
@@ -108,16 +108,16 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1  # Replace with your actual AWS region
+          aws-region: ap-south-1 
 
       - name: Log in to ECR
         run: |
-          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com
+          aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 055177035138.dkr.ecr.ap-south-1.amazonaws.com
 
       - name: Download Docker image from build step
         uses: actions/download-artifact@v2
         with:
-          name: docker-image
+          name: inferencer
           path: .
 
       - name: Load Docker image
@@ -126,4 +126,4 @@ jobs:
 
       - name: Push Docker image to ECR
         run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/your-ecr-repo:latest
+          docker push 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest

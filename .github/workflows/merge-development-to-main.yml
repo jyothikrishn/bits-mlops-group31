@@ -129,4 +129,8 @@ jobs:
 
       - name: Push Docker image to ECR
         run: |
+<<<<<<< HEAD
           docker push 055177035138.dkr.ecr.ap-south-1.amazonaws.com/inferencer:latest
+=======
+          docker image push 055177035138.dkr.ecr.ap-south-1.amazonaws.com/jyothik:latest
+>>>>>>> b38ee92322e11295c3aefc936a27ab77aa90b83f

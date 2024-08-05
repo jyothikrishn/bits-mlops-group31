@@ -89,13 +89,13 @@ jobs:
 
       - name: Save Docker image for deploy step
         run: |
-          docker save inferencer | gzip > docker-image.tar.gz
+          docker save inferencer | gzip > inferencer.tar.gz
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v2
         with:
           name: inferencer
-          path: docker-image.tar.gz
+          path: inferencer.tar.gz
 
   deploy:
     needs: build
@@ -125,7 +125,7 @@ jobs:
 
       - name: Load Docker image
         run: |
-          gunzip -c docker-image.tar.gz | docker load
+          gunzip -c inferencer.tar.gz | docker load
 
       - name: Push Docker image to ECR
         run: |

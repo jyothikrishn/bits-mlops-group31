@@ -131,6 +131,10 @@ jobs:
         run: |
           gunzip -c inferencer.tar.gz | docker load
 
+      - name: Tag Docker image
+        run: |
+          docker tag inferencer:latest 055177035138.dkr.ecr.ap-south-1.amazonaws.com/inferencer:latest
+
       - name: Verify Docker image loaded
         run: |
           docker images

@@ -5,30 +5,6 @@ on:
     branches: [ main ]
 
 jobs:
-  cleanup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Set up GitHub CLI
-        uses: actions/setup-gh@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: List Artifacts
-        run: |
-          gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts > artifacts.json
-          cat artifacts.json | jq '.artifacts[] | {id: .id, name: .name, created_at: .created_at}'
-
-      - name: Delete Old Artifacts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts > artifacts.json
-          for id in $(cat artifacts.json | jq -r '.artifacts[] | select(.created_at < now - 1*24*60*60) | .id'); do
-            gh api -X DELETE /repos/${{ github.repository }}/actions/artifacts/$id
-          done
   lint:
     runs-on: ubuntu-latest
     steps:

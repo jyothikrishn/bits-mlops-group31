@@ -8,15 +8,10 @@ jobs:
   cleanup:
     runs-on: ubuntu-latest
     steps:
-      - name: List Artifacts
-        run: |
-          gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts > artifacts.json
-          cat artifacts.json | jq '.artifacts[] | {id: .id, name: .name, created_at: .created_at}'
-
       - name: Delete Old Artifacts
         run: |
           gh api -H "Accept: application/vnd.github.v3+json" /repos/${{ github.repository }}/actions/artifacts > artifacts.json
-          for id in $(cat artifacts.json | jq -r '.artifacts[] | select(.created_at < now - 30*24*60*60) | .id'); do
+          for id in $(cat artifacts.json | jq -r '.artifacts[] | select(.created_at < now - 1*24*60*60) | .id'); do
             gh api -X DELETE /repos/${{ github.repository }}/actions/artifacts/$id
           done
   lint:

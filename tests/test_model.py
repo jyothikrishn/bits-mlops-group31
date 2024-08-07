@@ -24,5 +24,4 @@ def test_model_predict_values(model):
     # Adjusting the input shape to match the model's expected input shape (None, 8)
     dummy_input = tf.random.uniform([1, 8])  # Changed from [1, 10] to [1, 8]
     prediction = model.predict(dummy_input)
-    # Here, you can add assertions to check if the prediction values are within the expected range
     

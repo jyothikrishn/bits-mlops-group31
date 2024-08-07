@@ -8,7 +8,7 @@ mlflow.set_tracking_uri("http://host.docker.internal:8899")
 
 # Load the model from the MLflow Model Registry
 model_name = "MyModel"
-model_version = 1  # Specify the version of the model you want to use
+model_version = 1  # Specify the version of the best model we have currently
 model = mlflow.tensorflow.load_model(f"models:/{model_name}/{model_version}")
 
 @app.route('/predict', methods=['POST'])
